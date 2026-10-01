@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pinkerton · Dados & BI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: coluna única editorial; o hero é um "result set" de consulta; cases como registros de uma tabela */
+:root{
+  --bg:#EDF0F3;
+  --surface:#F8FAFB;
+  --ink:#16202B;
+  --muted:#556270;
+  --line:#CDD4DB;
+  --accent:#B8741A;
+  --accent-soft:#F3E3CB;
+  --todo:#9A3F2E;
+  --display:"Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161C;--surface:#182029;--ink:#E6EBF0;--muted:#97A4B2;--line:#2A3541;
+    --accent:#E2A04A;--accent-soft:#3A2C1A;--todo:#E58A74;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161C;--surface:#182029;--ink:#E6EBF0;--muted:#97A4B2;--line:#2A3541;
+  --accent:#E2A04A;--accent-soft:#3A2C1A;--todo:#E58A74;color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 64px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:96px}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.08}
+p{margin:0}
+.label{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.todo{color:var(--todo);border-bottom:1px dashed var(--todo);font-style:normal}
+
+/* nav */
+.draft{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;padding-block:10px;border-bottom:1px solid var(--line);margin-inline:-20px;padding-inline:20px}
+.draft b{color:var(--accent);font-weight:500}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:28px}
+nav .brand{font-family:var(--mono);font-weight:500}
+nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;flex-wrap:wrap}
+nav ul a{text-decoration:none;color:var(--muted);font-size:15px}
+nav ul a:hover{color:var(--ink)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:end}
+.hero > *{min-width:0}
+.hero h1{font-size:clamp(40px,6.4vw,76px);font-weight:800;letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{margin-top:24px;max-width:56ch;color:var(--muted);font-size:18px}
+.hero .ctas{margin-top:32px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-family:var(--body);font-weight:600;font-size:15px;padding:12px 20px;border-radius:4px;text-decoration:none;border:1px solid var(--ink);transition:transform .15s}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn:hover{transform:translateY(-1px)}
+
+.result{background:var(--surface);border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:13px;overflow:hidden}
+.result .q{padding:14px 16px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5}
+.result .q span{color:var(--accent)}
+.result table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.result th,.result td{text-align:left;padding:9px 16px;border-bottom:1px solid var(--line)}
+.result th{font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.result td.n{text-align:right;color:var(--ink);font-weight:500}
+.result tr:last-child td{border-bottom:0}
+.result .foot{padding:8px 16px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
+
+/* section heads */
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:8px}
+.sec-head h2{font-size:clamp(28px,4vw,40px);font-weight:700}
+
+/* cases */
+.cases{display:flex;flex-direction:column}
+.case{display:grid;grid-template-columns:200px 1fr;gap:32px;padding-block:36px;border-bottom:1px solid var(--line)}
+.case > *{min-width:0}
+.case .meta{display:flex;flex-direction:column;gap:10px}
+.case .id{font-family:var(--mono);font-size:13px;color:var(--accent)}
+.status{align-self:flex-start;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.status.prod{border-color:var(--accent);color:var(--accent)}
+.case h3{font-size:clamp(22px,2.6vw,28px);font-weight:700}
+.case .sum{margin-top:12px;max-width:62ch;color:var(--muted)}
+.pab{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pab > div{min-width:0}
+.pab p{margin-top:6px;font-size:15px}
+.stack{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}
+.stack li{font-family:var(--mono);font-size:12px;background:var(--accent-soft);color:var(--ink);padding:3px 9px;border-radius:3px}
+.case .more{display:inline-block;margin-top:18px;font-weight:600;font-size:15px;text-decoration:none;border-bottom:1px solid var(--accent)}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:20px}
+.skills > div{min-width:0}
+.skills ul{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:6px}
+.skills li{font-size:15px}
+
+/* experience */
+.exp{display:flex;flex-direction:column}
+.exp .row{display:grid;grid-template-columns:200px 1fr;gap:32px;padding-block:24px;border-bottom:1px solid var(--line)}
+.exp .row > *{min-width:0}
+.exp .when{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.exp h3{font-size:20px;font-weight:700}
+.exp p{margin-top:6px;color:var(--muted);max-width:62ch}
+
+/* contact */
+.contact{background:var(--ink);color:var(--bg);border-radius:8px;padding:48px clamp(20px,5vw,56px);display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:end}
+.contact > *{min-width:0}
+.contact h2{font-size:clamp(30px,4.4vw,48px);font-weight:800}
+.contact p{margin-top:14px;opacity:.75;max-width:44ch}
+.contact ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:14px}
+.contact li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid color-mix(in srgb,var(--bg) 25%,transparent);padding-bottom:8px;flex-wrap:wrap}
+.contact li span:first-child{opacity:.6}
+footer{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr}
+  .case,.exp .row{grid-template-columns:1fr;gap:14px}
+  .case .meta{flex-direction:row;align-items:center;flex-wrap:wrap}
+  .pab{grid-template-columns:1fr}
+  .skills{grid-template-columns:repeat(2,1fr)}
+  .contact{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="draft"><b>Rascunho</b> · textos em <span class="todo">vermelho tracejado</span> são para você completar</div>
+
+<div class="wrap">
+<nav>
+  <span class="brand">pinkerton.dados</span>
+  <ul>
+    <li><a href="#projetos">Projetos</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#experiencia">Experiência</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <div>
+    <p class="label">Analista de Dados &amp; BI</p>
+    <h1 style="margin-top:14px">Bases brutas viram <em>dados confiáveis</em> e decisões claras.</h1>
+    <p class="lede">Sou Pinkerton. Trabalho com enriquecimento e qualidade de dados em escala: pipelines em produção, auditoria de bases com dezenas de milhões de registros, conformidade com a LGPD e painéis que substituem planilhas.</p>
+    <div class="ctas">
+      <a class="btn primary" href="#projetos">Ver projetos</a>
+      <a class="btn" href="#contato">Entrar em contato</a>
+    </div>
+  </div>
+  <div class="result" aria-label="Resumo em números">
+    <div class="q"><span>SELECT</span> métrica, valor<br><span>FROM</span> portfolio.resumo<br><span>ORDER BY</span> relevância;</div>
+    <table>
+      <thead><tr><th>métrica</th><th style="text-align:right">valor</th></tr></thead>
+      <tbody>
+        <tr><td>linhas mascaradas (LGPD)</td><td class="n">~200M</td></tr>
+        <tr><td>bases no lote de auditoria</td><td class="n">18</td></tr>
+        <tr><td>maior base auditada</td><td class="n">78M</td></tr>
+        <tr><td>pipelines em produção</td><td class="n todo">n</td></tr>
+      </tbody>
+    </table>
+    <div class="foot">4 rows · PostgreSQL</div>
+  </div>
+</header>
+
+<section id="projetos">
+  <div class="sec-head"><h2>Projetos</h2><span class="label">5 cases · dados anonimizados</span></div>
+  <div class="cases">
+
+    <article class="case">
+      <div class="meta"><span class="id">01 / pipeline</span><span class="status prod">em produção</span></div>
+      <div>
+        <h3>Orquestração de pipelines com Airflow, do zero à produção</h3>
+        <p class="sum">Implantação do Airflow na AWS e criação de DAGs para ingestão e transformação de dados públicos, com deploy automatizado e SQL versionado.</p>
+        <div class="pab">
+          <div><p class="label">Problema</p><p>Cargas manuais, scripts soltos e sem controle de versão, difíceis de monitorar.</p></div>
+          <div><p class="label">Abordagem</p><p>CI/CD com GitHub Actions, transformações em arquivos .sql versionados e camada silver no PostgreSQL.</p></div>
+          <div><p class="label">Resultado</p><p class="todo">Ex.: X cargas agendadas, Y horas/semana economizadas</p></div>
+        </div>
+        <ul class="stack"><li>Airflow</li><li>Python</li><li>PostgreSQL</li><li>GitHub Actions</li><li>AWS</li><li>Docker</li></ul>
+        <a class="more" href="#">Ver case completo →</a>
+      </div>
+    </article>
+
+    <article class="case">
+      <div class="meta"><span class="id">02 / governança</span><span class="status prod">em produção</span></div>
+      <div>
+        <h3>Mascaramento LGPD em ~200 milhões de registros</h3>
+        <p class="sum">Anonimização de dados pessoais (documentos e telefones) em escala, com exportação em streaming direto para o S3 sem estourar memória.</p>
+        <div class="pab">
+          <div><p class="label">Problema</p><p>Compartilhar bases sem expor dados pessoais e sem travar o banco em exportações gigantes.</p></div>
+          <div><p class="label">Abordagem</p><p>Scripts SQL de mascaramento por tipo de campo e export via COPY em streaming para o S3.</p></div>
+          <div><p class="label">Resultado</p><p class="todo">Ex.: tempo de export, volume entregue</p></div>
+        </div>
+        <ul class="stack"><li>SQL</li><li>PostgreSQL / RDS</li><li>AWS S3</li><li>LGPD</li></ul>
+        <a class="more" href="#">Ver case completo →</a>
+      </div>
+    </article>
+
+    <article class="case">
+      <div class="meta"><span class="id">03 / qualidade</span><span class="status">processo padrão</span></div>
+      <div>
+        <h3>Framework de diagnóstico e auditoria de bases</h3>
+        <p class="sum">Metodologia padronizada para avaliar cada base recebida para enriquecimento: cobertura, duplicidade, consistência e recência.</p>
+        <div class="pab">
+          <div><p class="label">Problema</p><p>Bases de 5M a 78M de registros chegavam sem avaliação comum de qualidade.</p></div>
+          <div><p class="label">Abordagem</p><p>Duas etapas (diagnóstico e auditoria estatística) e uma biblioteca de queries reutilizáveis.</p></div>
+          <div><p class="label">Resultado</p><p>Lote de 18 bases documentado no mesmo padrão. <span class="todo">Tempo por base?</span></p></div>
+        </div>
+        <ul class="stack"><li>SQL</li><li>Estatística descritiva</li><li>Data quality</li><li>Documentação</li></ul>
+        <a class="more" href="#">Ver case completo →</a>
+      </div>
+    </article>
+
+    <article class="case">
+      <div class="meta"><span class="id">04 / BI</span><span class="status prod">entregue</span></div>
+      <div>
+        <h3>Power BI alimentado por API de ERP</h3>
+        <p class="sum">Integração de um ERP via API REST com scripts Python para alimentar um modelo de vendas no Power BI.</p>
+        <div class="pab">
+          <div><p class="label">Problema</p><p>Dados do ERP presos no sistema, relatórios montados à mão.</p></div>
+          <div><p class="label">Abordagem</p><p>Python com autenticação JWT e paginação incremental, modelagem e medidas DAX.</p></div>
+          <div><p class="label">Resultado</p><p class="todo">Ex.: relatório que levava X horas agora atualiza sozinho</p></div>
+        </div>
+        <ul class="stack"><li>Power BI</li><li>DAX</li><li>Python</li><li>REST API</li></ul>
+        <a class="more" href="#">Ver case completo →</a>
+      </div>
+    </article>
+
+    <article class="case">
+      <div class="meta"><span class="id">05 / produto</span><span class="status">em desenvolvimento</span></div>
+      <div>
+        <h3>Dashboard de entrega para clientes em Streamlit</h3>
+        <p class="sum">Substituição da entrega em Excel estático por um painel interativo, com segurança por cliente e downloads de arquivos grandes.</p>
+        <div class="pab">
+          <div><p class="label">Problema</p><p>Planilhas pesadas, sem controle de acesso nem visão dos indicadores.</p></div>
+          <div><p class="label">Abordagem</p><p>Autenticação, segurança por linha por cliente, log de auditoria e links temporários no S3.</p></div>
+          <div><p class="label">Resultado</p><p class="todo">A definir quando for ao ar</p></div>
+        </div>
+        <ul class="stack"><li>Streamlit</li><li>Python</li><li>AWS Cognito</li><li>S3</li></ul>
+        <a class="more" href="#">Ver case completo →</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section id="stack">
+  <div class="sec-head"><h2>Stack</h2><span class="label">o que uso no dia a dia</span></div>
+  <div class="skills">
+    <div><p class="label">Dados</p><ul><li>SQL avançado</li><li>PostgreSQL</li><li>Modelagem bronze/silver</li><li>Data quality</li></ul></div>
+    <div><p class="label">Engenharia</p><ul><li>Python</li><li>Airflow</li><li>Docker</li><li>GitHub Actions</li></ul></div>
+    <div><p class="label">BI &amp; visualização</p><ul><li>Power BI</li><li>DAX</li><li>Streamlit</li><li>Excel</li></ul></div>
+    <div><p class="label">Cloud &amp; governança</p><ul><li>AWS (S3, RDS, EC2)</li><li>LGPD</li><li>Controle de acesso</li></ul></div>
+  </div>
+</section>
+
+<section id="experiencia">
+  <div class="sec-head"><h2>Experiência</h2><a class="label" href="#">Baixar CV (PDF)</a></div>
+  <div class="exp">
+    <div class="row">
+      <span class="when todo">20XX — atual</span>
+      <div><h3>Analista de Dados · Everon</h3><p>Enriquecimento de bases de contato (telefones, e-mails, endereços) para clientes corporativos, com fontes públicas como Receita Federal e RAIS.</p></div>
+    </div>
+    <div class="row">
+      <span class="when todo">20XX — 20XX</span>
+      <div><h3 class="todo">Cargo anterior · Empresa</h3><p class="todo">Uma linha sobre o que você fazia.</p></div>
+    </div>
+    <div class="row">
+      <span class="when todo">20XX</span>
+      <div><h3 class="todo">Formação · Instituição</h3><p class="todo">Curso e certificações relevantes.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="contato" class="contact">
+  <div>
+    <h2>Vamos conversar sobre dados?</h2>
+    <p>Aberto a oportunidades em análise de dados, BI e analytics engineering.</p>
+  </div>
+  <ul>
+    <li><span>e-mail</span><span class="todo">seu@email.com</span></li>
+    <li><span>linkedin</span><span class="todo">/in/seuperfil</span></li>
+    <li><span>github</span><span class="todo">github.com/seuusuario</span></li>
+  </ul>
+</section>
+
+<footer>pinkerton.dados · feito em HTML, hospedado no GitHub Pages</footer>
+</div>
+</body>
+</html>
