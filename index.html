@@ -210,6 +210,8 @@ nav ul a:hover{color:var(--ink)}
 .contact ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-family:var(--mono);font-size:14px}
 .contact li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid color-mix(in srgb,var(--bg) 25%,transparent);padding-bottom:8px;flex-wrap:wrap}
 .contact li span:first-child{opacity:.6}
+.contact li a{text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+.contact li a:hover{border-bottom-color:currentColor}
 footer{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
 
 @media (max-width:820px){
@@ -493,9 +495,9 @@ footer{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:cent
     <p class="term" data-term>$ SELECT canal, endereco FROM contato;</p>
   </div>
   <ul>
-    <li><span>e-mail</span><span class="todo">seu@email.com</span></li>
-    <li><span>linkedin</span><span class="todo">/in/seuperfil</span></li>
-    <li><span>github</span><span class="todo">github.com/seuusuario</span></li>
+    <li><span>e-mail</span><a href="mailto:pfagundes55@gmail.com">pfagundes55@gmail.com</a></li>
+    <li><span>linkedin</span><a href="https://www.linkedin.com/in/pinkerton-reis-fagundes" target="_blank" rel="noopener">/in/pinkerton-reis-fagundes</a></li>
+    <li><span>github</span><a href="https://github.com/Fagundes55" target="_blank" rel="noopener">github.com/Fagundes55</a></li>
   </ul>
 </section>
 
